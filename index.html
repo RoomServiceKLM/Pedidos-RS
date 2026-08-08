@@ -122,12 +122,39 @@
   .offhours{display:none;background:#fff;border-left:4px solid var(--yellow);border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:12px;line-height:1.5;box-shadow:0 1px 3px rgba(0,0,0,.06);font-weight:400;}
   .offhours.show{display:block;}
 
-  /* ---------- Menu ---------- */
-  .subsec{
-    font-family:'Josefin Sans',sans-serif;font-size:13px;color:var(--yellow-dark);letter-spacing:2px;
-    font-weight:600;margin:20px 0 8px;text-transform:uppercase;
+  /* ---------- Buscador ---------- */
+  .search-wrap{margin-bottom:12px;}
+  .search-wrap input{
+    width:100%;padding:12px 16px;border:1.5px solid var(--yellow);border-radius:24px;font-size:14.5px;
+    background:#fff;color:var(--ink);font-family:'Jost',sans-serif;box-shadow:0 1px 3px rgba(0,0,0,.05);
   }
+  .search-wrap input:focus{outline:none;border-color:var(--yellow-dark);box-shadow:0 0 0 3px rgba(248,172,0,.18);}
+  .search-hint{font-size:11.5px;color:var(--muted);margin-top:5px;padding-left:14px;font-weight:300;display:none;}
+  .search-hint.show{display:block;}
+
+  /* ---------- Secciones plegables ---------- */
+  .subsec{
+    font-family:'Josefin Sans',sans-serif;font-size:14px;color:#000;letter-spacing:2px;
+    font-weight:600;margin:14px 0 0;text-transform:uppercase;cursor:pointer;user-select:none;
+    display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;
+    border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);
+    transition:background .15s;
+  }
+  .subsec:hover{background:var(--yellow-soft);}
+  .subsec .arrow{font-size:11px;color:var(--yellow-dark);transition:transform .2s;flex:0 0 auto;}
+  .subsec.open .arrow{transform:rotate(90deg);}
+  .subsec .count{
+    margin-left:auto;font-family:'Jost',sans-serif;font-size:11px;font-weight:500;color:#6b5200;
+    background:var(--yellow-soft);border:1px solid var(--yellow);padding:2px 9px;border-radius:12px;
+    text-transform:none;letter-spacing:0;
+  }
+  .sec-items{display:none;padding-top:10px;}
+  .sec-items.open{display:block;}
+  .sec-group{font-family:'Josefin Sans',sans-serif;font-size:12px;color:var(--yellow-dark);letter-spacing:2px;font-weight:600;margin:16px 0 2px;text-transform:uppercase;padding-left:4px;}
+
+  /* ---------- Menu ---------- */
   .items{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:10px;}
+  @media(max-width:640px){.items{grid-template-columns:1fr;}}
   .item{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:all .15s;}
   .item.in-cart{border:1.5px solid var(--yellow);background:var(--yellow-soft);}
   .item-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
@@ -245,6 +272,9 @@
       <h2>2 · Selección de la comanda</h2>
       <div class="tabs" id="tabs"></div>
       <div class="offhours" id="offhours"></div>
+      <div class="search-wrap">
+        <input id="menuSearch" type="search" placeholder="🔍 Buscar plato o bebida en toda la carta…" autocomplete="off">
+      </div>
       <div id="menuArea"></div>
     </section>
 
@@ -322,7 +352,7 @@
 /* ================================================================
    CONFIGURACIÓN — pega aquí la URL de tu Google Apps Script desplegado
    ================================================================ */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzUR2B4VKCtcKU0U-13osHc4GCiXg7LkkQgOgHtvJKAEY5H74cCZla19rfa8gQ_UPmi/exec";
+const WEBAPP_URL = "PEGA_AQUI_LA_URL_DE_TU_APPS_SCRIPT";
 
 /* Variantes reutilizables */
 const V_PUNTO   = { label:"Punto de la carne", options:["Rare (muy poco hecha)","Medium rare (poco hecha)","Medium (al punto)","Medium well (hecha)","Well done (muy hecha)"] };
@@ -642,8 +672,8 @@ const SPEECH = [
   { title:"Pago, confirmación y cierre", body:`
     <div class="phrase"><span class="es">«¿Cómo le gustaría realizar el pago: con cargo a la habitación, con tarjeta o en efectivo?»</span>
     <span class="en">“How would you like to pay: charged to your room, by card, or in cash?”</span></div>
-    <div class="phrase"><span class="es">«Le confirmo su pedido: [leer la comanda completa del resumen, con cantidades y variantes]. El total es de [importe].»</span>
-    <span class="en">“Let me confirm your order: [read the full order back]. The total is [amount].”</span></div>
+    <div class="phrase"><span class="es">«Le repito su pedido para confirmar que todo está correcto: [leer la comanda completa del resumen, con cantidades y variantes].»</span>
+    <span class="en">“Let me repeat your order to make sure everything is correct: [read the full order back].”</span></div>
     <div class="phrase"><span class="es">«¿Desea algo más? … Muchas gracias, que tenga un buen día / que disfrute de su estancia.»</span>
     <span class="en">“Would you like anything else? … Thank you very much, have a lovely day / enjoy your stay.”</span></div>
     <div class="tip">Selecciona la forma de pago en el punto 5, lee el resumen tal cual y pulsa <b>Enviar comanda</b>. El equipo la recibe al instante por Telegram.</div>` }
@@ -712,27 +742,83 @@ function buildTabs(){
 }
 function renderOffhours(){
   const box = document.getElementById("offhours");
-  if (["breakfast","allday","night","kids"].includes(currentTab) && !tabIsActive(currentTab)){
+  if (searchQuery.trim().length < 2 && ["breakfast","allday","night","kids"].includes(currentTab) && !tabIsActive(currentTab)){
     box.innerHTML = "⚠ <b>Esta carta no está activa ahora mismo</b> (horario: " + MENU[currentTab].hours + "). Si el huésped pide algo de aquí, <b>confirma primero con cocina</b> antes de aceptar la comanda.";
     box.classList.add("show");
   } else box.classList.remove("show");
 }
 
-/* ---- Menu render ---- */
+/* ---- Menu render: secciones plegables + buscador ---- */
+const openSections = new Set();  // "tab::sección" abiertas por el usuario
+let searchQuery = "";
+
+function secHeader(catKey, sec, forceOpen){
+  const key = catKey + "::" + sec.title;
+  const isOpen = forceOpen || openSections.has(key);
+  const h = document.createElement("div");
+  h.className = "subsec" + (isOpen ? " open":"");
+  h.innerHTML = `<span class="arrow">▶</span><span>${sec.title}</span><span class="count">${sec.items.length} items</span>`;
+  h.onclick = ()=>{
+    if (openSections.has(key)) openSections.delete(key); else openSections.add(key);
+    h.classList.toggle("open");
+    h.nextElementSibling.classList.toggle("open");
+  };
+  return h;
+}
 function renderMenu(){
   renderOffhours();
   const area = document.getElementById("menuArea");
   area.innerHTML = "";
+  const q = searchQuery.trim().toLowerCase();
+
+  if (q.length >= 2){
+    /* Búsqueda global en toda la carta */
+    let total = 0;
+    Object.keys(MENU).forEach(catKey=>{
+      MENU[catKey].sections.forEach(sec=>{
+        const hits = sec.items.filter(i =>
+          i.name.toLowerCase().includes(q) ||
+          (i.desc && i.desc.toLowerCase().includes(q)) ||
+          (i.alg && i.alg.toLowerCase().includes(q))
+        );
+        if (!hits.length) return;
+        total += hits.length;
+        const g = document.createElement("div");
+        g.className = "sec-group";
+        g.textContent = MENU[catKey].label + " · " + sec.title;
+        area.appendChild(g);
+        const wrap = document.createElement("div");
+        wrap.className = "sec-items open";
+        const grid = document.createElement("div");
+        grid.className = "items";
+        hits.forEach(item=> grid.appendChild(itemCard(item)));
+        wrap.appendChild(grid);
+        area.appendChild(wrap);
+      });
+    });
+    if (!total){
+      area.innerHTML = `<div class="sum-empty">Sin resultados para «${searchQuery}». Revisa la escritura o navega por las pestañas.</div>`;
+    }
+    return;
+  }
+
+  /* Vista normal: secciones plegadas */
   MENU[currentTab].sections.forEach(sec=>{
-    const h = document.createElement("div");
-    h.className = "subsec"; h.textContent = sec.title;
-    area.appendChild(h);
+    area.appendChild(secHeader(currentTab, sec, false));
+    const wrap = document.createElement("div");
+    const key = currentTab + "::" + sec.title;
+    wrap.className = "sec-items" + (openSections.has(key) ? " open":"");
     const grid = document.createElement("div");
     grid.className = "items";
     sec.items.forEach(item=> grid.appendChild(itemCard(item)));
-    area.appendChild(grid);
+    wrap.appendChild(grid);
+    area.appendChild(wrap);
   });
 }
+document.getElementById("menuSearch").addEventListener("input", e=>{
+  searchQuery = e.target.value;
+  renderMenu();
+});
 function algChips(alg){
   if (!alg || alg==="—") return "";
   return `<div class="allergens">` + alg.split("·").map(a=>`<span class="alg">${a.trim()}</span>`).join("") + `</div>`;
@@ -861,7 +947,7 @@ function renderSummary(){
 /* ---- Comunicaciones obligatorias ---- */
 const COMMS_BASE = [
   { id:"c-time", text:"He informado del tiempo estimado de entrega (35–40 min · 40–45 min en Night Menu)" },
-  { id:"c-read", text:"He leído la comanda completa al huésped y he confirmado el total" },
+  { id:"c-read", text:"He repetido el pedido completo al huésped y ha confirmado que todo es correcto" },
 ];
 const COMMS_COND = [
   { id:"c-water", text:"He informado del coste de 7 € de las botellas de agua premium", ids:["x-panna","x-pellegrino"] },
