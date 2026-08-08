@@ -33,8 +33,8 @@
   .brand{display:flex;align-items:center;gap:14px;}
   .brand img{height:32px;width:auto;}
   .brand .tag{
-    font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;
-    color:#3a2c00;font-weight:600;border-left:1.5px solid rgba(0,0,0,.35);padding-left:14px;line-height:1.5;
+    font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1.6px;text-transform:uppercase;white-space:nowrap;
+    color:#3a2c00;font-weight:600;border-left:1.5px solid rgba(0,0,0,.35);padding-left:12px;line-height:1.3;
   }
   .head-right{margin-left:auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
   .agosto-toggle{
@@ -237,7 +237,7 @@
 <header>
   <div class="brand">
     <img src="logo-black.png" alt="Kimpton Los Monteros Marbella">
-    <div class="tag">Room Service<br>Toma de comandas — Recepción</div>
+    <div class="tag">Comandas para Room Service</div>
   </div>
   <div class="head-right">
     <button class="guide-btn" id="guideBtn">Guía de llamada</button>
@@ -319,6 +319,14 @@
           <label class="pay-opt"><input type="radio" name="payment" value="Efectivo"><span>Efectivo</span></label>
         </div>
       </div>
+      <div class="field" style="margin-bottom:14px;">
+        <label>Pedido realizado por *</label>
+        <div class="pay-grid">
+          <label class="pay-opt"><input type="radio" name="orderedBy" value="Recepción"><span>Recepción</span></label>
+          <label class="pay-opt"><input type="radio" name="orderedBy" value="Racket"><span>Racket</span></label>
+          <label class="pay-opt"><input type="radio" name="orderedBy" value="Hostess"><span>Hostess</span></label>
+        </div>
+      </div>
       <div class="comm-box" id="commBox"></div>
     </section>
 
@@ -352,7 +360,7 @@
 /* ================================================================
    CONFIGURACIÓN — pega aquí la URL de tu Google Apps Script desplegado
    ================================================================ */
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzUR2B4VKCtcKU0U-13osHc4GCiXg7LkkQgOgHtvJKAEY5H74cCZla19rfa8gQ_UPmi/exec";
+const WEBAPP_URL = "PEGA_AQUI_LA_URL_DE_TU_APPS_SCRIPT";
 
 /* Variantes reutilizables */
 const V_PUNTO   = { label:"Punto de la carne", options:["Rare (muy poco hecha)","Medium rare (poco hecha)","Medium (al punto)","Medium well (hecha)","Well done (muy hecha)"] };
@@ -1041,6 +1049,10 @@ function getPayment(){
   const r = document.querySelector('input[name="payment"]:checked');
   return r ? r.value : "";
 }
+function getOrderedBy(){
+  const r = document.querySelector('input[name="orderedBy"]:checked');
+  return r ? r.value : "";
+}
 function validate(){
   const errs = [];
   if (!document.getElementById("fRoom").value.trim()) errs.push("· Falta el número de habitación.");
@@ -1050,6 +1062,7 @@ function validate(){
   if (al==="Sí" && !document.getElementById("fAllergyDetail").value.trim())
     errs.push("· El huésped tiene alergias: especifica cuál.");
   if (!getPayment()) errs.push("· Falta preguntar la forma de pago (punto 5).");
+  if (!getOrderedBy()) errs.push("· Falta indicar quién ha realizado el pedido (punto 5).");
   if ([...document.querySelectorAll("#commBox input")].some(b=>!b.checked))
     errs.push("· Faltan confirmaciones del punto 5 por marcar.");
   return errs;
@@ -1073,6 +1086,7 @@ document.getElementById("sendBtn").onclick = async ()=>{
     guest: document.getElementById("fGuest").value.trim(),
     pax: document.getElementById("fPax").value,
     payment: getPayment(),
+    orderedBy: getOrderedBy(),
     allergy: document.getElementById("fAllergy").value,
     allergyDetail: document.getElementById("fAllergyDetail").value.trim(),
     notes: document.getElementById("fNotes").value.trim(),
@@ -1115,6 +1129,7 @@ function closeModal(){
   ["fRoom","fGuest","fAllergyDetail","fNotes","fReceptionNote"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("fAllergy").value = "";
   document.querySelectorAll('input[name="payment"]').forEach(r=> r.checked=false);
+  document.querySelectorAll('input[name="orderedBy"]').forEach(r=> r.checked=false);
   document.getElementById("statusMsg").className = "status";
   document.querySelectorAll(".step-check input").forEach(c=>{ if(c.checked){ c.checked=false; c.dispatchEvent(new Event("change")); } });
   orderId = genOrderId();
