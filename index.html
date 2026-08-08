@@ -237,7 +237,6 @@
   </div>
   <div class="head-right">
     <button class="guide-btn" id="guideBtn">Guía de llamada</button>
-    <label class="agosto-toggle"><input type="checkbox" id="agosto"> Horario de agosto</label>
     <div class="clock-box">
       <div class="clock" id="clock">--:--</div>
       <span class="service-pill" id="servicePill">—</span>
@@ -403,7 +402,7 @@ const MENU = {
   },
 
   allday: {
-    label: "All Day Dining", sub:"12:00 – 23:30", hours:"12:00 – 23:30 (agosto: hasta 03:00)",
+    label: "All Day Dining", sub:"12:00 – 03:00", hours:"12:00 – 03:00",
     sections: [
       { title: "Starters", items: [
         { id:"a-oysters", name:"Oysters", desc:"Precio por unidad · Pedido mínimo 2 unidades", price:9, alg:"Moluscos", min:2, priceNote:"9 €/ud" },
@@ -456,7 +455,7 @@ const MENU = {
   },
 
   night: {
-    label: "Night Menu", sub:"23:30 – 07:00", hours:"23:30 – 07:00 (agosto: 03:00 – 07:00)",
+    label: "Night Menu", sub:"03:00 – 07:00", hours:"03:00 – 07:00",
     sections: [
       { title: "Night Menu", items: [
         { id:"n-burger", name:"Homemade Beef Burger", desc:"Ternera madurada, salsa Café de Paris, brioche, cheddar y bacon", price:34, alg:"Gluten · Lácteos · Mostaza · Cerdo",
@@ -479,7 +478,7 @@ const MENU = {
   },
 
   kids: {
-    label: "Kids Menu", sub:"Menú infantil", hours:"Con la carta All Day (12:00 – 23:30)",
+    label: "Kids Menu", sub:"Menú infantil", hours:"Con la carta All Day (12:00 – 03:00)",
     sections: [
       { title: "Kids Menu · Menú Infantil", items: [
         { id:"k-burger", name:"Kids Beef Burger with Cheese", desc:"Hamburguesa de ternera con queso, acompañada de patatas fritas", price:17, alg:"—",
@@ -702,23 +701,15 @@ Object.values(MENU).forEach(cat => cat.sections.forEach(s => s.items.forEach(i =
 function currentService(){
   const d = new Date();
   const h = d.getHours() + d.getMinutes()/60;
-  const agosto = document.getElementById("agosto").checked;
   if (h >= 7 && h < 12) return "breakfast";
-  if (!agosto){
-    if (h >= 12 && h < 23.5) return "allday";
-    return "night";
-  } else {
-    if (h >= 12 || h < 3) return "allday";
-    if (h >= 3 && h < 7) return "night";
-    return "breakfast";
-  }
+  if (h >= 12 || h < 3) return "allday";
+  return "night"; // 03:00 – 07:00
 }
 function serviceLabel(){
-  const agosto = document.getElementById("agosto").checked;
   const s = currentService();
   if (s==="breakfast") return "Desayuno · 07:00–12:00";
-  if (s==="allday") return agosto ? "All Day Dining · 12:00–03:00 (agosto)" : "All Day Dining · 12:00–23:30";
-  return agosto ? "Night Menu · 03:00–07:00 (agosto)" : "Night Menu · 23:30–07:00";
+  if (s==="allday") return "All Day Dining · 12:00–03:00";
+  return "Night Menu · 03:00–07:00";
 }
 function tickClock(){
   const d = new Date();
@@ -1102,7 +1093,6 @@ function closeModal(){
 }
 
 /* ---- Init ---- */
-document.getElementById("agosto").onchange = ()=>{ tickClock(); buildTabs(); renderMenu(); };
 renderSpeech();
 tickClock();
 currentTab = currentService();
