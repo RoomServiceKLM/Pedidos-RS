@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Room Service · Toma de Comandas — Kimpton Los Monteros</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --yellow:#F8AC00;
+    --yellow-dark:#D18F00;
+    --yellow-soft:#FFF6E3;
+    --ink:#1a1a1a;
+    --muted:#7d7d7d;
+    --line:#F2DFAE;
+    --green:#2E7D32;
+    --red:#C62828;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--yellow-soft);color:var(--ink);
+    font-family:'Jost',Arial,sans-serif;min-height:100vh;
+  }
+  h1,h2,h3{font-family:'Josefin Sans',sans-serif;}
+
+  /* ---------- Header ---------- */
+  header{
+    background:var(--yellow);padding:14px 24px;display:flex;align-items:center;gap:22px;
+    flex-wrap:wrap;box-shadow:0 2px 10px rgba(0,0,0,.12);position:sticky;top:0;z-index:60;
+  }
+  .brand{display:flex;align-items:center;gap:16px;}
+  .brand img{height:44px;width:auto;}
+  .brand .tag{
+    font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;
+    color:#3a2c00;font-weight:600;border-left:1.5px solid rgba(0,0,0,.35);padding-left:16px;line-height:1.6;
+  }
+  .head-right{margin-left:auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  .agosto-toggle{
+    display:flex;align-items:center;gap:8px;font-size:12.5px;color:#3a2c00;font-weight:600;
+    cursor:pointer;user-select:none;
+  }
+  .agosto-toggle input{accent-color:#000;width:16px;height:16px;cursor:pointer;}
+  .guide-btn{
+    padding:9px 18px;border-radius:20px;border:1.5px solid #000;background:transparent;color:#000;
+    font-size:13px;font-weight:600;cursor:pointer;letter-spacing:1px;font-family:'Josefin Sans',sans-serif;transition:all .15s;
+  }
+  .guide-btn:hover{background:#000;color:var(--yellow);}
+  .clock-box{text-align:right;}
+  .clock{font-family:'Josefin Sans',sans-serif;font-size:24px;font-weight:600;color:#000;line-height:1;letter-spacing:2px;}
+  .service-pill{
+    display:inline-block;margin-top:5px;font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+    background:#000;color:var(--yellow);padding:3px 11px;border-radius:20px;
+  }
+
+  /* ---------- Guide drawer ---------- */
+  .drawer-overlay{position:fixed;inset:0;background:rgba(26,26,26,.45);opacity:0;pointer-events:none;transition:opacity .25s;z-index:90;backdrop-filter:blur(2px);}
+  .drawer-overlay.show{opacity:1;pointer-events:auto;}
+  .drawer{
+    position:fixed;top:0;left:0;height:100vh;width:390px;max-width:92vw;background:#fff;z-index:95;
+    transform:translateX(-105%);transition:transform .28s ease;box-shadow:6px 0 30px rgba(0,0,0,.22);
+    display:flex;flex-direction:column;
+  }
+  .drawer.show{transform:translateX(0);}
+  .drawer-head{background:var(--yellow);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;}
+  .drawer-head h2{font-size:15px;letter-spacing:2.5px;text-transform:uppercase;color:#000;font-weight:600;}
+  .drawer-head p{font-size:11px;color:#3a2c00;margin-top:3px;font-weight:500;}
+  .drawer-close{background:none;border:none;color:#000;font-size:28px;cursor:pointer;line-height:1;padding:0 6px;}
+  .drawer-body{overflow-y:auto;flex:1;}
+  .step{border-bottom:1px solid var(--line);}
+  .step-btn{width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;background:none;border:none;cursor:pointer;text-align:left;font-size:13.5px;font-weight:600;color:var(--ink);font-family:'Jost',sans-serif;}
+  .step-btn:hover{background:var(--yellow-soft);}
+  .step-num{flex:0 0 26px;height:26px;border-radius:50%;background:var(--yellow-soft);border:1.5px solid var(--yellow);color:#6b5200;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'Josefin Sans',sans-serif;}
+  .step.done .step-num{background:var(--green);border-color:var(--green);color:#fff;}
+  .step.done .step-title{color:var(--muted);text-decoration:line-through;}
+  .step-body{display:none;padding:4px 16px 14px 52px;font-size:12.5px;line-height:1.55;color:var(--muted);font-weight:300;}
+  .step.open .step-body{display:block;}
+  .phrase{background:var(--yellow-soft);border-left:4px solid var(--yellow);padding:9px 11px;margin:8px 0;border-radius:0 8px 8px 0;}
+  .phrase .es{display:block;font-weight:600;color:var(--ink);font-style:italic;}
+  .phrase .en{display:block;font-size:11.5px;color:var(--muted);margin-top:3px;font-style:italic;font-weight:300;}
+  .tip{font-size:11.5px;background:#F0F7F0;border:1px solid #CBE2CB;color:#256428;padding:8px 10px;border-radius:8px;margin-top:8px;font-weight:400;}
+  .mandatory{font-size:11.5px;background:#FDEEEA;border:1px solid #F0C4B3;color:#8a4415;padding:8px 10px;border-radius:8px;margin-top:8px;font-weight:600;}
+  .step-check{margin-top:10px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#6b5200;cursor:pointer;}
+  .step-check input{accent-color:var(--green);width:15px;height:15px;cursor:pointer;}
+
+  /* ---------- Layout ---------- */
+  .layout{display:grid;grid-template-columns:1fr 350px;gap:18px;padding:18px 22px;max-width:1400px;margin:0 auto;align-items:start;}
+  @media(max-width:1000px){.layout{grid-template-columns:1fr;}}
+  .main-col{display:flex;flex-direction:column;gap:16px;min-width:0;}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .panel h2{
+    font-size:16px;letter-spacing:3px;text-transform:uppercase;color:#000;font-weight:600;
+    margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--yellow);display:inline-block;
+  }
+  .panel h2 small{font-family:'Jost',sans-serif;font-size:11.5px;letter-spacing:.2px;text-transform:none;color:var(--muted);font-weight:300;}
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;}
+  .field label{display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+  .field input,.field select,.field textarea{
+    width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;
+    background:#fff;color:var(--ink);font-family:'Jost',sans-serif;
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--yellow);}
+  .field textarea{resize:vertical;min-height:60px;}
+  .field .hint{font-size:10.5px;color:var(--muted);margin-top:4px;font-weight:300;}
+
+  /* ---------- Tabs ---------- */
+  .tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:14px;}
+  .tab{
+    padding:10px 8px;border-radius:10px;border:1.5px solid var(--yellow);background:#fff;font-size:13.5px;
+    font-weight:600;cursor:pointer;color:var(--ink);text-align:center;transition:all .15s;position:relative;
+    font-family:'Josefin Sans',sans-serif;letter-spacing:.5px;
+  }
+  .tab small{display:block;font-size:10.5px;font-weight:400;margin-top:3px;color:#6b5200;font-family:'Jost',sans-serif;}
+  .tab:hover{background:var(--yellow-soft);}
+  .tab.active{background:#000;color:var(--yellow);border-color:#000;}
+  .tab.active small{color:var(--yellow-soft);}
+  .tab.now::after{
+    content:"AHORA";position:absolute;top:-9px;right:-6px;background:#000;color:var(--yellow);
+    font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:1px;font-family:'Josefin Sans',sans-serif;
+  }
+  .offhours{display:none;background:#fff;border-left:4px solid var(--yellow);border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:12px;line-height:1.5;box-shadow:0 1px 3px rgba(0,0,0,.06);font-weight:400;}
+  .offhours.show{display:block;}
+
+  /* ---------- Menu ---------- */
+  .subsec{
+    font-family:'Josefin Sans',sans-serif;font-size:13px;color:var(--yellow-dark);letter-spacing:2px;
+    font-weight:600;margin:20px 0 8px;text-transform:uppercase;
+  }
+  .items{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:10px;}
+  .item{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:all .15s;}
+  .item.in-cart{border:1.5px solid var(--yellow);background:var(--yellow-soft);}
+  .item-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+  .item-name{font-size:14px;font-weight:600;line-height:1.3;}
+  .item-price{font-size:14px;font-weight:700;color:#000;white-space:nowrap;font-family:'Josefin Sans',sans-serif;}
+  .item-desc{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.45;font-weight:300;}
+  .allergens{margin-top:7px;display:flex;flex-wrap:wrap;gap:4px;}
+  .alg{display:inline-flex;align-items:center;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:500;background:var(--yellow-soft);border:1px solid var(--yellow);color:#6b5200;}
+  .variant{width:100%;margin-top:8px;padding:8px 9px;border:1.5px solid var(--line);border-radius:8px;font-size:12.5px;background:#fff;font-family:'Jost',sans-serif;}
+  .variant:focus{outline:none;border-color:var(--yellow);}
+  .stepper{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:10px;}
+  .stepper button{
+    width:34px;height:34px;border-radius:50%;border:2px solid var(--yellow);background:#fff;color:#000;
+    font-size:18px;font-weight:700;cursor:pointer;line-height:1;transition:all .15s;
+  }
+  .stepper button:active{transform:scale(.92);}
+  .stepper button.plus{background:var(--yellow);color:#000;}
+  .stepper .qty{min-width:22px;text-align:center;font-weight:700;font-size:15px;}
+  .min-note{font-size:10.5px;color:var(--red);margin-top:5px;font-weight:600;}
+  .item-note{margin-top:7px;font-size:11px;color:#6b5200;font-weight:600;background:var(--yellow-soft);border:1.5px dashed var(--yellow);padding:7px 9px;border-radius:8px;}
+
+  /* ---------- Comms ---------- */
+  .comm-box{background:#fff;border:1.5px dashed var(--yellow);border-radius:10px;padding:12px 14px;}
+  .comm-box label{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;cursor:pointer;padding:7px 0;font-weight:500;}
+  .comm-box input{margin-top:2px;accent-color:var(--green);width:16px;height:16px;cursor:pointer;flex:0 0 16px;}
+  .comm-box label.done{color:var(--green);}
+  .pay-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+  .pay-opt{flex:1;min-width:130px;}
+  .pay-opt input{display:none;}
+  .pay-opt span{
+    display:block;text-align:center;padding:11px 8px;border:1.5px solid var(--yellow);border-radius:9px;
+    font-size:13px;font-weight:600;cursor:pointer;background:#fff;transition:all .15s;font-family:'Josefin Sans',sans-serif;letter-spacing:.5px;
+  }
+  .pay-opt input:checked + span{background:#000;color:var(--yellow);border-color:#000;}
+
+  /* ---------- Summary ---------- */
+  .summary{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;position:sticky;top:96px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .sum-head{background:var(--yellow);padding:13px 16px;}
+  .sum-head h2{font-size:15px;letter-spacing:2.5px;text-transform:uppercase;color:#000;font-weight:600;}
+  .sum-head .oid{font-size:11px;color:#3a2c00;margin-top:3px;font-family:monospace;font-weight:600;}
+  .sum-body{padding:12px 16px;max-height:44vh;overflow-y:auto;}
+  .sum-empty{font-size:12.5px;color:var(--muted);text-align:center;padding:24px 8px;font-style:italic;font-weight:300;}
+  .sum-line{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:12.5px;}
+  .sum-line .sl-name{font-weight:600;line-height:1.35;}
+  .sum-line .sl-var{display:block;font-weight:300;font-size:11px;color:var(--muted);}
+  .sum-line .sl-price{font-weight:700;white-space:nowrap;font-family:'Josefin Sans',sans-serif;}
+  .sum-total{display:flex;justify-content:space-between;padding:13px 16px;border-top:2px solid var(--yellow);font-size:16px;font-weight:700;font-family:'Josefin Sans',sans-serif;letter-spacing:1px;}
+  .send-wrap{padding:0 16px 16px;}
+  .send-btn{
+    width:100%;padding:15px;border:none;border-radius:10px;background:var(--yellow);color:#000;
+    font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+    font-family:'Josefin Sans',sans-serif;transition:all .15s;box-shadow:0 2px 6px rgba(0,0,0,.12);
+  }
+  .send-btn:hover{background:var(--yellow-dark);transform:translateY(-1px);}
+  .send-btn:disabled{background:#d8cfae;cursor:not-allowed;transform:none;}
+  .val-errors{padding:0 16px 12px;font-size:11.5px;color:var(--red);line-height:1.6;display:none;font-weight:500;}
+  .val-errors.show{display:block;}
+  .status{padding:12px 16px;font-size:12.5px;display:none;border-radius:8px;margin:0 16px 16px;font-weight:400;}
+  .status.ok{display:block;background:#EAF4EA;color:#256428;border:1px solid #CBE2CB;}
+  .status.err{display:block;background:#FBEBEB;color:#8c2f2f;border:1px solid #efc5c5;}
+
+  .overlay{position:fixed;inset:0;background:rgba(26,26,26,.5);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(3px);}
+  .overlay.show{display:flex;}
+  .modal{background:#fff;border-radius:16px;padding:30px 34px;max-width:480px;width:92%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);border-top:5px solid var(--yellow);}
+  .modal .check-ic{width:64px;height:64px;border-radius:50%;background:var(--yellow);color:#000;font-size:32px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-weight:700;}
+  .modal h3{font-size:21px;color:#000;margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;font-weight:600;}
+  .modal p{font-size:13.5px;color:var(--muted);line-height:1.6;font-weight:300;}
+  .modal .oid-big{font-family:monospace;font-size:17px;font-weight:800;color:var(--yellow-dark);margin:10px 0;}
+  .modal button{margin-top:18px;padding:12px 30px;border:none;border-radius:24px;background:#000;color:var(--yellow);font-size:14px;font-weight:600;cursor:pointer;font-family:'Josefin Sans',sans-serif;letter-spacing:1px;text-transform:uppercase;}
+
+  footer{text-align:center;padding:18px;font-size:11px;color:var(--muted);font-weight:300;letter-spacing:1px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <img src="logo-black.png" alt="Kimpton Los Monteros Marbella">
+    <div class="tag">Room Service<br>Toma de comandas — Recepción</div>
+  </div>
+  <div class="head-right">
+    <button class="guide-btn" id="guideBtn">Guía de llamada</button>
+    <label class="agosto-toggle"><input type="checkbox" id="agosto"> Horario de agosto</label>
+    <div class="clock-box">
+      <div class="clock" id="clock">--:--</div>
+      <span class="service-pill" id="servicePill">—</span>
+    </div>
+  </div>
+</header>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div><h2>Guía de atención telefónica</h2><p>Sigue los pasos en orden durante la llamada</p></div>
+    <button class="drawer-close" id="drawerClose">×</button>
+  </div>
+  <div class="drawer-body" id="speech"></div>
+</aside>
+
+<div class="layout">
+  <main class="main-col">
+
+    <section class="panel">
+      <h2>1 · Datos del huésped</h2>
+      <div class="form-grid">
+        <div class="field"><label>Nº de habitación *</label><input id="fRoom" type="text" placeholder="Ej. 214" autocomplete="off"></div>
+        <div class="field"><label>Nombre del huésped</label><input id="fGuest" type="text" placeholder="Opcional" autocomplete="off"></div>
+        <div class="field"><label>Nº de personas</label>
+          <select id="fPax"><option>1</option><option>2</option><option>3</option><option>4</option><option>5+</option></select>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>2 · Selección de la comanda</h2>
+      <div class="tabs" id="tabs"></div>
+      <div class="offhours" id="offhours"></div>
+      <div id="menuArea"></div>
+    </section>
+
+    <section class="panel">
+      <h2>3 · Alergias e intolerancias <small>— pregunta obligatoria en todas las comandas</small></h2>
+      <div class="form-grid" style="grid-template-columns:1fr 1.4fr;">
+        <div class="field">
+          <label>¿Tiene alguna alergia o intolerancia? *</label>
+          <select id="fAllergy">
+            <option value="">— Sin responder —</option>
+            <option value="No">No tiene alergias</option>
+            <option value="Sí">SÍ tiene (especificar)</option>
+          </select>
+        </div>
+        <div class="field"><label>¿Cuál?</label><input id="fAllergyDetail" type="text" placeholder="Ej. alergia a frutos secos, intolerancia al gluten…"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>4 · Notas de recepción</h2>
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="field">
+          <label>Observaciones para cocina / servicio</label>
+          <textarea id="fNotes" placeholder="Ej. sin cebolla, sin hielo, celebración…"></textarea>
+          <div class="hint">Estas notas las ve cocina junto con la comanda.</div>
+        </div>
+        <div class="field">
+          <label>Nota interna de recepción</label>
+          <textarea id="fReceptionNote" placeholder="Ej. VIP, avisar al llegar, incidencia…"></textarea>
+          <div class="hint">Cualquier cosa relevante que el equipo deba saber.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>5 · Antes de enviar</h2>
+      <div class="field" style="margin-bottom:14px;">
+        <label>¿Cómo le gustaría realizar el pago al huésped? *</label>
+        <div class="pay-grid">
+          <label class="pay-opt"><input type="radio" name="payment" value="Cargo a la habitación"><span>Cargo a la habitación</span></label>
+          <label class="pay-opt"><input type="radio" name="payment" value="Tarjeta"><span>Tarjeta</span></label>
+          <label class="pay-opt"><input type="radio" name="payment" value="Efectivo"><span>Efectivo</span></label>
+        </div>
+      </div>
+      <div class="comm-box" id="commBox"></div>
+    </section>
+
+  </main>
+
+  <aside class="summary">
+    <div class="sum-head">
+      <h2>Resumen</h2>
+      <div class="oid" id="orderId">—</div>
+    </div>
+    <div class="sum-body" id="sumBody"><div class="sum-empty">Todavía no hay productos seleccionados.</div></div>
+    <div class="sum-total"><span>TOTAL</span><span id="sumTotal">0,00 €</span></div>
+    <div class="val-errors" id="valErrors"></div>
+    <div class="status" id="statusMsg"></div>
+    <div class="send-wrap"><button class="send-btn" id="sendBtn">Enviar comanda</button></div>
+  </aside>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="check-ic">✓</div>
+    <h3>Comanda enviada</h3>
+    <div class="oid-big" id="modalOid"></div>
+    <p>La comanda se ha registrado y el equipo de Room Service la ha recibido por Telegram.</p>
+    <button onclick="closeModal()">Nueva comanda</button>
+  </div>
+</div>
+
+<footer>Uso interno · Recepción & F&B · Kimpton Los Monteros Marbella</footer>
+<script>
+/* ================================================================
+   CONFIGURACIÓN — pega aquí la URL de tu Google Apps Script desplegado
+   ================================================================ */
+const WEBAPP_URL = "PEGA_AQUI_LA_URL_DE_TU_APPS_SCRIPT";
+
+/* Variantes reutilizables */
+const V_PUNTO   = { label:"Punto de la carne", options:["Rare (muy poco hecha)","Medium rare (poco hecha)","Medium (al punto)","Medium well (hecha)","Well done (muy hecha)"] };
+const V_CERDO   = { label:"Preparación", options:["Normal","Sin cerdo (sin bacon)"] };
+const V_JAMON   = { label:"Jamón", options:["Jamón cocido","Jamón de pavo"] };
+const V_CAFE    = { label:"Tipo", options:["Normal","Descafeinado"] };
+const V_LECHE   = { label:"Leche", options:["Normal","Sin lactosa","De avena","De soja","De almendra"] };
+
+/* ================================================================
+   CARTA COMPLETA
+   ================================================================ */
+const MENU = {
+  breakfast: {
+    label: "Desayuno", sub: "07:00 – 12:00", hours:"07:00 – 12:00",
+    sections: [
+      { title: "Breakfast Menu", items: [
+        { id:"b-eggsben", name:"Eggs Benedict", desc:"Jamón, salsa holandesa, cebollino y pan brioche", price:15, alg:"Gluten · Huevo · Lácteos · Cerdo" },
+        { id:"b-continental", name:"Continental Breakfast", desc:"Bebida caliente + zumo de naranja natural, selección de panadería, mantequilla y mermeladas", price:27, alg:"Gluten · Lácteos · Frutos secos · Soja",
+          variant:{ label:"Bebida caliente", options:["Espresso","Espresso doble","Cortado","Americano","Café con leche","Latte","Cappuccino","Té","Chocolate caliente"] } },
+        { id:"b-croque", name:"Croque Madame", desc:"Queso cheddar curado, pavo ahumado, huevo frito y mezclum", price:14, alg:"Gluten · Huevo · Lácteos" },
+        { id:"b-acai", name:"Açaí Bowl", desc:"Frutas del bosque, plátano, kiwi, coco y granola casera", price:19, alg:"Gluten · Frutos secos · Sésamo" },
+        { id:"b-frittata", name:"Omelette Frittata", desc:"Parmesano, calabacín baby, tomates cherry y albahaca", price:12, alg:"Huevo · Lácteos" },
+        { id:"b-iberian", name:"Iberian Charcuterie Selection", desc:"Selección de charcutería ibérica para desayuno", price:21.5, alg:"Cerdo · Sulfitos" },
+        { id:"b-pancakes", name:"Fluffy Pancakes", desc:"Praliné de chocolate, plátano, nata montada y caramelo", price:12, alg:"Gluten · Huevo · Lácteos · Frutos secos" },
+        { id:"b-green", name:"Green Healthy Omelette", desc:"Clara de huevo, espinacas baby, salmón ahumado y espárragos", price:14, alg:"Huevo · Pescado" },
+        { id:"b-fruit", name:"Seasonal Fruit", desc:"Fruta de temporada", price:14, alg:"Ninguno declarado" },
+        { id:"b-croissant", name:"Croissant", desc:"Croissant de mantequilla casero; mixto con jamón o pavo y queso", price:7, alg:"Gluten · Lácteos · Cerdo",
+          variant:{ label:"Tipo", options:["Simple — 7 €","Mixto de jamón y queso — 11 €","Mixto de pavo y queso — 11 €"], deltas:[0,4,4] } },
+        { id:"b-yogurt", name:"Yogurt Pastoret", desc:"Yogurt Pastoret", price:6, alg:"Lácteos",
+          variant:{ label:"Sabor", options:["Natural","Fresa","Melocotón","Griego"] } },
+        { id:"b-cereals", name:"Cereals", desc:"Elige tus cereales favoritos", price:8, alg:"Gluten · Lácteos",
+          variant:{ label:"Acompañamiento", options:["Con leche","Con yogur"] } },
+        { id:"b-eggs", name:"Eggs", desc:"Huevos al gusto", price:11, alg:"Huevo",
+          variant:{ label:"Elaboración", options:["Revueltos","Fritos","Pochados"] } },
+        { id:"b-tortilla", name:"Tortilla al gusto", desc:"Tortilla con ingredientes a elegir", price:11, alg:"Huevo",
+          variant:{ label:"Ingrediente", options:["Plain (sola)","Con jamón york","Con queso","Con espinacas","Con tomate","Con cebolla"] },
+          note:"Si lleva MÁS de un ingrediente, elige uno aquí y anota el resto en Observaciones." },
+        { id:"b-pastries", name:"Pastries", desc:"Pastelería casera (6 piezas), mantequilla y mermeladas", price:11, alg:"Gluten · Huevo · Lácteos" },
+        { id:"b-bread", name:"Bread", desc:"Pan casero (4 piezas), mantequilla, mermeladas caseras y miel ecológica", price:9.5, alg:"Gluten · Lácteos",
+          variant:{ label:"Pan", options:["Blanco","Integral"] } },
+        { id:"b-toast", name:"Toast", desc:"Tostadas (4 piezas), mantequilla, mermeladas caseras y miel ecológica", price:9, alg:"Gluten · Lácteos",
+          variant:{ label:"Pan", options:["Blanco","Integral"] } },
+        { id:"b-sausages", name:"Sausages, Bacon or Seasonal Vegetables", desc:"A la plancha", price:8.5, alg:"Cerdo · Sulfitos",
+          variant:{ label:"Elige una opción", options:["Salchichas","Bacon","Verduras de temporada"] } },
+        { id:"b-cheese", name:"Cheese Selection", desc:"Selección de quesos para desayuno: cabra, oveja y vaca", price:18, alg:"Lácteos" },
+      ]}
+    ]
+  },
+
+  allday: {
+    label: "All Day Dining", sub:"12:00 – 23:30", hours:"12:00 – 23:30 (agosto: hasta 03:00)",
+    sections: [
+      { title: "Starters", items: [
+        { id:"a-oysters", name:"Oysters", desc:"Precio por unidad · Pedido mínimo 2 unidades", price:9, alg:"Moluscos", min:2, priceNote:"9 €/ud" },
+        { id:"a-anchovy", name:"Anchovy", desc:"Selección de anchoas artesanales en conserva sobre lecho de tomate natural rallado", price:10, alg:"Pescado · Sulfitos" },
+        { id:"a-sardine", name:"Smoked Sardine Toast", desc:"Deshuesadas con pan brioche enmantecado, queso de cabra fresco de Málaga y miel", price:18, alg:"Gluten · Lácteos · Pescado" },
+        { id:"a-gazpacho", name:"Andalusian Gazpacho", desc:"Tomate ecológico, pepino y sardina ahumada", price:16, alg:"Gluten · Pescado · Sulfitos" },
+        { id:"a-ham", name:"Ham from Dehesa de los Monteros", desc:"Pan de cristal, tomate rallado y aceite de oliva", price:39, alg:"Gluten · Sulfitos · Cerdo" },
+        { id:"a-cheeseboard", name:"Cheese Board", desc:"Variedad de quesos de cabra, oveja y vaca", price:24, alg:"Gluten · Frutos secos · Lácteos · Sulfitos" },
+      ]},
+      { title: "Main Dishes", items: [
+        { id:"a-pappardelle", name:"Pappardelle Frutti Di Mare", desc:"Salteada con mejillones, almejas, calamar, ajo, vino blanco y tomate", price:32, alg:"Gluten · Huevo · Moluscos · Sulfitos" },
+        { id:"a-neapolitan", name:"Neapolitan Pasta", desc:"Salsa de tomate, infusión de albahaca fresca y AOVE", price:26, alg:"Gluten",
+          variant:{ label:"Pasta", options:["Penne","Spaghetti"] } },
+        { id:"a-tuna", name:"Barbate Bluefin Tuna Tartar", desc:"Corte de cuchillo con mango de Axarquía y huevo frito", price:28, alg:"Pescado · Huevo" },
+        { id:"a-tenderloin", name:"Beef Tenderloin", desc:"Centro de solomillo con puré de patata trufado y verduras de temporada", price:39, alg:"Lácteos",
+          variant:V_PUNTO },
+        { id:"a-chicken", name:"Chicken Tender", desc:"Tiras de pollo crujientes con patatas fritas y salsas mayonesa, kétchup y mostaza", price:18, alg:"Gluten · Huevo · Mostaza" },
+      ]},
+      { title: "Pizza", items: [
+        { id:"a-margherita", name:"Margherita Pizza", desc:"Masa crujiente, base de tomate natural y mozzarella auténtica", price:30, alg:"Gluten · Lácteos" },
+        { id:"a-4cheese", name:"Four Andalusian Cheese Pizza", desc:"Base crujiente, tomate natural y selección de quesos andaluces fundidos", price:32, alg:"Gluten · Lácteos" },
+        { id:"a-pepperoni", name:"Spicy Pepperoni Pizza", desc:"Base crujiente, salsa de tomate natural, mozzarella fundida y pepperoni picante", price:28, alg:"Gluten · Lácteos · Cerdo" },
+      ]},
+      { title: "Sandwich & Burger", items: [
+        { id:"a-burger", name:"Homemade Beef Burger", desc:"Ternera madurada, salsa Café de Paris, brioche, tomate, cheddar y bacon + patatas fritas", price:26, alg:"Gluten · Lácteos · Mostaza · Cerdo",
+          variant:V_PUNTO, variant2:V_CERDO },
+        { id:"a-club", name:"Club Sandwich", desc:"Triple decker con pollo, bacon, huevo, lechuga, tomate y mayonesa", price:21, alg:"Gluten · Huevo · Cerdo",
+          variant:V_CERDO, variant2:V_JAMON },
+        { id:"a-bikini", name:"Bikini Kimpton Los Monteros", desc:"Pastrami jugoso, rúcula y vinagreta de mostaza y miel en pan brioche", price:16, alg:"Gluten · Mostaza" },
+      ]},
+      { title: "Salads", items: [
+        { id:"a-caesarp", name:"Caesar Salad with Prawns", desc:"Clásica Caesar con langostinos tigre, picatostes y parmesano", price:26, alg:"Gluten · Huevo · Lácteos · Sulfitos · Crustáceos",
+          variant:{ label:"Preparación", options:["Normal","Sin anchoas","Sin croutons (picatostes)","Salsa aparte"] },
+          note:"Si pide varias modificaciones a la vez, elige una aquí y anota el resto en Observaciones." },
+        { id:"a-caesarc", name:"Caesar Salad with Chicken", desc:"Clásica Caesar con pollo a la parrilla, picatostes y parmesano", price:21, alg:"Gluten · Huevo · Pescado · Lácteos · Sulfitos",
+          variant:{ label:"Preparación", options:["Normal","Sin anchoas","Sin croutons (picatostes)","Salsa aparte"] },
+          note:"Si pide varias modificaciones a la vez, elige una aquí y anota el resto en Observaciones." },
+        { id:"a-green", name:"Green Salad", desc:"Brotes tiernos, tomate cherry, pepino y vinagreta de mostaza y miel", price:21, alg:"Mostaza · Sulfitos" },
+      ]},
+      { title: "Desserts", items: [
+        { id:"a-payoyo", name:"Payoyo Cheesecake", desc:"Queso Payoyo horneado, base de galleta, culis de mango o frutos rojos y chocolate blanco", price:16, alg:"Gluten · Lácteos" },
+        { id:"a-sphere", name:"Dark Chocolate, Hazelnut & Caramel Sphere", desc:"Esfera de mousse de chocolate negro, base de financier y crema de avellana", price:16, alg:"Gluten · Lácteos · Frutos secos" },
+        { id:"a-fruitplatter", name:"Seasonal Fruit Platter", desc:"Selección de fruta de temporada cortada", price:16, alg:"Ninguno declarado" },
+        { id:"a-baileys", name:"Three-phase Coffee with Baileys", desc:"Bizcocho empapado en Baileys, ganache de Baileys con crema de café y cacao", price:16, alg:"Gluten · Lácteos · Alcohol" },
+        { id:"a-pistachio", name:"Pistachio Rocher with Raspberry Explosion", desc:"Mousse de pistacho, corazón de frambuesa y arándanos, chocolate blanco dorado", price:16, alg:"Gluten · Lácteos · Frutos secos" },
+        { id:"a-citrus", name:"Citrus Creamy with Maria Biscuits", desc:"Crema cítrica, merengue tostado y frutos rojos sobre galleta María", price:16, alg:"Gluten · Huevo · Lácteos" },
+        { id:"a-sweetsin", name:"Sweet Sin", desc:"Panna cotta de coco con coulis de maracuyá y sorbete de frambuesa", price:16, alg:"Lácteos" },
+      ]}
+    ]
+  },
+
+  night: {
+    label: "Night Menu", sub:"23:30 – 07:00", hours:"23:30 – 07:00 (agosto: 03:00 – 07:00)",
+    sections: [
+      { title: "Night Menu", items: [
+        { id:"n-burger", name:"Homemade Beef Burger", desc:"Ternera madurada, salsa Café de Paris, brioche, cheddar y bacon", price:34, alg:"Gluten · Lácteos · Mostaza · Cerdo",
+          variant:V_PUNTO, variant2:V_CERDO },
+        { id:"n-lasagna", name:"Bolognese Lasagna", desc:"Ragú boloñesa con bechamel y queso gratinado", price:32, alg:"Gluten · Huevo · Lácteos · Cerdo · Sulfitos" },
+        { id:"n-ham", name:"Ham from Dehesa de los Monteros", desc:"Pan de cristal y tomates confitados en aceite de oliva para compartir", price:39, alg:"Gluten · Cerdo · Sulfitos" },
+        { id:"n-salmon", name:"Smoked Salmon with Garnish", desc:"Salmón ahumado, ensalada, alcaparras y crema de eneldo", price:18, alg:"Pescado · Lácteos · Sulfitos" },
+        { id:"n-hcsandwich", name:"Ham and Cheese Sandwich", desc:"Sándwich de jamón y queso tostado con mantequilla", price:16, alg:"Gluten · Lácteos · Cerdo",
+          variant:V_JAMON },
+        { id:"n-club", name:"Club Sandwich Los Monteros", desc:"Triple decker con pollo, bacon, huevo y verduras frescas", price:21, alg:"Gluten · Huevo · Cerdo",
+          variant:V_CERDO, variant2:V_JAMON },
+        { id:"n-bikini", name:"Bikini Los Monteros", desc:"Pastrami jugoso, rúcula y vinagreta de mostaza y miel", price:16, alg:"Gluten · Mostaza" },
+        { id:"n-cheese", name:"Cheese Platter", desc:"Variedad de quesos de cabra, oveja y vaca con frutos secos y miel", price:26, alg:"Gluten · Lácteos · Frutos secos" },
+        { id:"n-flan", name:"Cream Flan", desc:"Flan de crema casero con caramelo", price:16, alg:"Huevo · Lácteos" },
+        { id:"n-baileys", name:"Three-phase Coffee with Baileys", desc:"Bizcocho empapado en Baileys con ganache y crema de café", price:16, alg:"Gluten · Lácteos · Alcohol" },
+        { id:"n-pistachio", name:"Pistachio Rocher with Raspberry Explosion", desc:"Mousse de pistacho con corazón de frambuesa", price:16, alg:"Gluten · Lácteos · Frutos secos" },
+        { id:"n-citrus", name:"Citrus Creamy", desc:"Crema cítrica, merengue tostado y frutos rojos sobre galleta", price:16, alg:"Gluten · Huevo · Lácteos" },
+      ]}
+    ]
+  },
+
+  kids: {
+    label: "Kids Menu", sub:"Menú infantil", hours:"Con la carta All Day (12:00 – 23:30)",
+    sections: [
+      { title: "Kids Menu · Menú Infantil", items: [
+        { id:"k-burger", name:"Kids Beef Burger with Cheese", desc:"Hamburguesa de ternera con queso, acompañada de patatas fritas", price:17, alg:"—",
+          variant:V_PUNTO },
+        { id:"k-pizza", name:"Mini Margherita Pizza", desc:"Mini pizza margarita", price:19, alg:"—" },
+        { id:"k-chicken", name:"Crispy Chicken Fingers with French Fries", desc:"Lágrimas de pollo con patatas fritas", price:18, alg:"—" },
+        { id:"k-bolognese", name:"Pasta Bolognese", desc:"Pasta boloñesa", price:18, alg:"—",
+          variant:{ label:"Pasta", options:["Penne","Spaghetti"] } },
+        { id:"k-napoletana", name:"Pasta Napoletana", desc:"Pasta napolitana", price:17, alg:"—",
+          variant:{ label:"Pasta", options:["Penne","Spaghetti"] } },
+        { id:"k-chickenbreast", name:"Chicken Breast with Vegetables", desc:"Pechuga de pollo con verduras", price:18, alg:"—" },
+        { id:"k-salmon", name:"Salmon with Mashed Potatoes", desc:"Salmón con puré de patatas", price:21, alg:"—" },
+        { id:"k-tomato", name:"Tomato Salad with EVOO", desc:"Ensalada de tomate con AOVE", price:16, alg:"—" },
+      ]}
+    ]
+  },
+
+  drinks: {
+    label: "Bebidas", sub:"Disponible 24 h", hours:"Disponible 24 h",
+    sections: [
+      { title: "Refrescos", items: [
+        { id:"d-soft", name:"Soft Drink", desc:"Refresco", price:6, alg:"—",
+          variant:{ label:"Elige refresco", options:["Coca-Cola","Coca-Cola Zero","Fanta Naranja","Fanta Limón","Sprite","Tónica Schweppes","Nestea","Aquarius Limón","Aquarius Naranja","Bitter Kas"] } },
+        { id:"d-redbull", name:"Red Bull", price:7, alg:"—" },
+      ]},
+      { title: "Aguas", items: [
+        { id:"x-panna", name:"Acqua Panna (botella premium)", desc:"Agua sin gas premium", price:7, alg:"—",
+          note:"OBLIGATORIO informar del coste de 7 €. El huésped dispone de agua complementaria de Housekeeping." },
+        { id:"x-pellegrino", name:"San Pellegrino (botella premium)", desc:"Agua con gas premium", price:7, alg:"—",
+          note:"OBLIGATORIO informar del coste de 7 €. El huésped dispone de agua complementaria de Housekeeping." },
+      ]},
+      { title: "Zumos naturales", items: [
+        { id:"d-zumo", name:"Zumo", desc:"Zumo natural", price:7, alg:"—",
+          variant:{ label:"Sabor", options:["Naranja","Piña","Manzana","Melocotón","Tomate","Arándanos"] } },
+      ]},
+      { title: "Zumos y Batidos (carta)", items: [
+        { id:"d-bluemoon", name:"Blue Moon", desc:"Mango, plátano, açaí, arándanos", price:12, alg:"—" },
+        { id:"d-tropical", name:"Tropical", desc:"Mango, papaya, piña", price:12, alg:"—" },
+        { id:"d-energy", name:"Energy", desc:"Zanahoria, manzana, pera, jengibre", price:12, alg:"—" },
+        { id:"d-vitality", name:"Vitality", desc:"Pepino, col rizada, piña, espinaca", price:12, alg:"—" },
+        { id:"d-waterberry", name:"Waterberry", desc:"Sandía, mango, fresa, semillas de chía", price:12, alg:"Sésamo (chía)" },
+      ]},
+      { title: "Cafés", items: [
+        { id:"d-espressocoffee", name:"Espresso", price:5.5, alg:"—", variant:V_CAFE },
+        { id:"d-doble", name:"Espresso Doble", price:7, alg:"—", variant:V_CAFE },
+        { id:"d-cortado", name:"Cortado", price:5.5, alg:"Lácteos", variant:V_CAFE, variant2:V_LECHE },
+        { id:"d-americano", name:"Americano", price:5.5, alg:"—", variant:V_CAFE },
+        { id:"d-conleche", name:"Café con Leche", price:6.5, alg:"Lácteos", variant:V_CAFE, variant2:V_LECHE },
+        { id:"d-latte", name:"Latte", price:6.5, alg:"Lácteos", variant:V_CAFE, variant2:V_LECHE },
+        { id:"d-cappuccino", name:"Cappuccino", price:7, alg:"Lácteos", variant:V_CAFE, variant2:V_LECHE },
+        { id:"d-flatwhite", name:"Flat White", price:7, alg:"Lácteos", variant:V_CAFE, variant2:V_LECHE },
+        { id:"d-frappuccino", name:"Frappuccino", price:10, alg:"Lácteos", variant2:V_LECHE },
+        { id:"d-vmilk", name:"Vanilla Milkshake", price:10, alg:"Lácteos", variant2:V_LECHE },
+        { id:"d-cmilk", name:"Chocolate Milkshake", price:10, alg:"Lácteos", variant2:V_LECHE },
+        { id:"d-icedmatcha", name:"Iced Matcha", price:10, alg:"—" },
+        { id:"d-matchacoco", name:"Matcha Frappé with Coconut", price:10, alg:"—" },
+      ]},
+      { title: "Cervezas (botellín)", items: [
+        { id:"d-corona", name:"Coronita (botellín)", price:8, alg:"Gluten · Alcohol" },
+        { id:"d-victoria", name:"Victoria (botellín)", price:7, alg:"Gluten · Alcohol" },
+        { id:"d-damm", name:"Damm (botellín)", price:7, alg:"Gluten · Alcohol" },
+        { id:"d-victoria00", name:"Victoria 0.0 (botellín)", price:6, alg:"Gluten" },
+      ]},
+      { title: "Signature Cocktails", items: [
+        { id:"d-halloffame", name:"Hall of Fame", desc:"Vodka Grey Goose, passoa, palo santo, soda de vainilla, fruta de la pasión", price:22, alg:"Alcohol" },
+        { id:"d-orangita", name:"Orangita", desc:"Tequila Patrón Silver, cordial de naranja, emulsionante", price:20, alg:"Alcohol" },
+        { id:"d-berry", name:"Berry Soirée", desc:"Ginebra Bombay Sapphire, Italicus, shrub de fresa, soda", price:18, alg:"Alcohol" },
+        { id:"d-havana", name:"Havana Breeze", desc:"Bacardí Blanco, cordial de menta, cardamomo verde, soda", price:18, alg:"Alcohol" },
+        { id:"d-sonny", name:"Sonny & Tubbs", desc:"Piña colada de ron clarificada, espuma de hibisco", price:18, alg:"Alcohol" },
+      ]},
+      { title: "Cocktails Clásicos", items: [
+        { id:"d-margarita", name:"Margarita", price:18, alg:"Alcohol" },
+        { id:"d-espresso", name:"Espresso Martini", price:18, alg:"Alcohol" },
+        { id:"d-pinacolada", name:"Piña Colada", price:18, alg:"Alcohol" },
+        { id:"d-daiquiri", name:"Daiquiri", price:16, alg:"Alcohol",
+          variant:{ label:"Sabor (+2 €)", options:["Clásico","Fresa +2 €","Fruta de la pasión +2 €","Mango +2 €"], deltas:[0,2,2,2] } },
+        { id:"d-moscow", name:"Moscow Mule", price:18, alg:"Alcohol" },
+        { id:"d-mojito", name:"Mojito", price:16, alg:"Alcohol",
+          variant:{ label:"Sabor (+2 €)", options:["Clásico","Fruta de la pasión +2 €","Fresa +2 €","Mango +2 €"], deltas:[0,2,2,2] } },
+        { id:"d-liit", name:"Long Island Iced Tea", price:18, alg:"Alcohol" },
+        { id:"d-bloody", name:"Bloody Mary", price:18, alg:"Alcohol" },
+      ]},
+      { title: "Mocktails (sin alcohol)", items: [
+        { id:"d-costalight", name:"Costa Light", desc:"Arándanos, berry e hibisco", price:14, alg:"Sin alcohol" },
+        { id:"d-clockwork", name:"A Clockwork Chill", desc:"Gin 0.0, naranja, soda", price:14, alg:"Sin alcohol" },
+        { id:"d-pinkgarden", name:"Pink Garden", desc:"Shrub de fresa, Martini Floreale, tónica", price:14, alg:"Sin alcohol" },
+        { id:"d-savage", name:"Savage", desc:"Cordial de pomelo, Martini Vibrante, agave", price:14, alg:"Sin alcohol" },
+        { id:"d-pineapple", name:"Pineapple Grove", desc:"Piña láctica, soda, romero", price:14, alg:"Sin alcohol" },
+        { id:"d-applemist", name:"Apple Mist", desc:"Zumo de manzana clarificado, soda", price:14, alg:"Sin alcohol" },
+      ]},
+      { title: "Spritz", items: [
+        { id:"d-aperol", name:"Aperol Spritz", price:18, alg:"Alcohol" },
+        { id:"d-hugo", name:"Hugo Spritz", price:18, alg:"Alcohol" },
+        { id:"d-floreale", name:"Floreale Spritz", price:18, alg:"Alcohol" },
+        { id:"d-fiero", name:"Fiero Spritz", price:16, alg:"Alcohol" },
+        { id:"d-virgin", name:"Virgin Spritz", desc:"Sin alcohol", price:14, alg:"Sin alcohol" },
+        { id:"d-costa", name:"Costa Spritz · Ars Collecta Blanc de Blanc", desc:"Confirmar precio con bar antes de cerrar la comanda", price:0, alg:"Alcohol", priceNote:"Consultar" },
+      ]},
+      { title: "Sangría (por copa)", items: [
+        { id:"d-sangriatinto", name:"Sangría de vino tinto (copa)", price:12, alg:"Alcohol · Sulfitos" },
+        { id:"d-sangriablanco", name:"Sangría de vino blanco (copa)", price:12, alg:"Alcohol · Sulfitos" },
+        { id:"d-sangriarosado", name:"Sangría de vino rosado (copa)", price:12, alg:"Alcohol · Sulfitos" },
+        { id:"d-sangriaars", name:"Bubbles Sangría Ars Collecta (copa)", price:15, alg:"Alcohol · Sulfitos" },
+        { id:"d-sangrialp", name:"Sangría Laurent Perrier Blanc de Blancs (copa)", price:28, alg:"Alcohol · Sulfitos" },
+      ]},
+      { title: "Espumosos y Aperitivos", items: [
+        { id:"d-drymartini", name:"Dry Martini", price:18, alg:"Alcohol" },
+        { id:"d-negroni", name:"Negroni", price:18, alg:"Alcohol" },
+        { id:"d-martinirosso", name:"Martini Rosso", price:12, alg:"Alcohol" },
+        { id:"d-bellini", name:"Bellini", price:14, alg:"Alcohol" },
+        { id:"d-mimosa", name:"Mimosa", price:14, alg:"Alcohol",
+          variant:{ label:"Versión", options:["Clásico — 14 €","Con Laurent Perrier +6 €"], deltas:[0,6] } },
+      ]},
+    ]
+  },
+
+  extras: {
+    label: "Extras", sub:"Suplementos", hours:"Suplementos de servicio",
+    sections: [
+      { title: "Hielo", items: [
+        { id:"x-hielo", name:"Servicio de hielo", desc:"Cubitera con hielo para la habitación", price:6, alg:"—",
+          note:"OBLIGATORIO informar del suplemento de 6 € antes de confirmar la solicitud." },
+      ]},
+      { title: "Extras de cocina", items: [
+        { id:"x-pan", name:"Servicio de pan", desc:"Pan adicional", price:0, alg:"—", priceNote:"—" },
+        { id:"x-pollo", name:"Extra pollo", desc:"Suplemento de pollo", price:0, alg:"—", priceNote:"—" },
+        { id:"x-prawns", name:"Extra prawns", desc:"Suplemento de langostinos", price:0, alg:"—", priceNote:"—" },
+        { id:"x-fries", name:"Extra patatas fritas", desc:"Ración extra de patatas fritas", price:0, alg:"—", priceNote:"—" },
+        { id:"x-arroz", name:"Extra arroz blanco", desc:"Ración extra de arroz blanco", price:0, alg:"—", priceNote:"—" },
+        { id:"x-consome", name:"Consomé de pollo", desc:"Consomé de pollo", price:0, alg:"—", priceNote:"—" },
+      ]},
+      { title: "Menaje adicional", items: [
+        { id:"x-platos", name:"Platos", desc:"Platos adicionales", price:0, alg:"—", priceNote:"—",
+          note:"Si el huésped pide SOLO menaje (sin comida), aplica el suplemento de 6 €: añade también el «Servicio de hielo» para reflejar el cargo e infórmale antes de confirmar." },
+        { id:"x-bowls", name:"Bowls", desc:"Bowls adicionales", price:0, alg:"—", priceNote:"—",
+          note:"Si el huésped pide SOLO menaje (sin comida), aplica el suplemento de 6 €: añade también el «Servicio de hielo» para reflejar el cargo e infórmale antes de confirmar." },
+        { id:"x-cubiertos", name:"Cubiertos", desc:"Juegos de cubiertos adicionales", price:0, alg:"—", priceNote:"—",
+          note:"Si el huésped pide SOLO menaje (sin comida), aplica el suplemento de 6 €: añade también el «Servicio de hielo» para reflejar el cargo e infórmale antes de confirmar." },
+      ]}
+    ]
+  }
+};
+</script>
+<script>
+/* ================================================================
+   SPEECH GUIADO — pasos para recepción
+   ================================================================ */
+const SPEECH = [
+  { title:"Saludo e identificación", body:`
+    <div class="phrase"><span class="es">«Kimpton Los Monteros, recepción, buenos días/tardes/noches, le atiende [tu nombre]. ¿En qué puedo ayudarle?»</span>
+    <span class="en">“Kimpton Los Monteros, front desk, good morning/afternoon/evening, [your name] speaking. How may I help you?”</span></div>
+    <div class="tip">Sonríe al hablar: se nota al otro lado. Tono cálido y pausado.</div>` },
+  { title:"Datos del huésped", body:`
+    <div class="phrase"><span class="es">«¿Me confirma su número de habitación y su nombre, por favor?»</span>
+    <span class="en">“May I have your room number and your name, please?”</span></div>
+    <div class="phrase"><span class="es">«Perfecto, Sr./Sra. [apellido], anoto su pedido para la habitación [número].»</span>
+    <span class="en">“Perfect, Mr./Ms. [surname], I'm taking your order for room [number].”</span></div>
+    <div class="tip">La habitación es obligatoria (es donde se carga y se entrega). El nombre es opcional: si el huésped lo da, anótalo; si no, basta con la habitación.</div>` },
+  { title:"Informar de la carta disponible", body:`
+    <div class="phrase"><span class="es">«En este momento tenemos disponible nuestra carta de [desayuno / all day dining / night menu].»</span>
+    <span class="en">“At this time we have our [breakfast / all day dining / night] menu available.”</span></div>
+    <div class="tip">La pestaña marcada como <b>AHORA</b> es la carta activa. Si el huésped pide algo de otra carta fuera de horario, confirma primero con cocina.</div>` },
+  { title:"Toma de la comanda", body:`
+    <div class="phrase"><span class="es">«¿Qué le apetece tomar? Voy anotando.»</span>
+    <span class="en">“What would you like to have? I'm writing it down.”</span></div>
+    <div class="tip"><b>Pregunta SIEMPRE las variantes que aparecen en los desplegables:</b><br>
+      · Burger y solomillo → ¿punto de la carne? (rare, medium rare, medium, medium well, well done)<br>
+      · Burger y club → ¿normal o sin cerdo (sin bacon)?<br>
+      · Club y sándwich mixto → ¿jamón cocido o jamón de pavo?<br>
+      · Cafés con leche → ¿normal o descafeinado? ¿leche normal, sin lactosa, de avena, de soja o de almendra?<br>
+      · Continental Breakfast → ¿café, té o chocolate caliente?<br>
+      · Eggs → ¿revueltos, fritos, pochados o tortilla al gusto?<br>
+      · Yogurt / cereales / refrescos / zumos → ¿qué sabor?<br>
+      · Daiquiri / Mojito → ¿clásico o con sabor (+2 €)?<br>
+      · Mimosa → ¿clásico o con Laurent Perrier (+6 €)?<br>
+      · Caesar → ¿normal, sin anchoas, sin croutons o salsa aparte?<br>
+      · Sangría → solo por copa · Ostras → mínimo 2 uds (9 €/ud).</div>` },
+  { title:"Alergias e intolerancias (obligatorio)", body:`
+    <div class="phrase"><span class="es">«Antes de confirmar, ¿tiene usted alguna alergia o intolerancia alimentaria que debamos conocer?»</span>
+    <span class="en">“Before I confirm, do you have any food allergies or intolerances we should be aware of?”</span></div>
+    <div class="mandatory">PREGUNTA OBLIGATORIA en TODAS las comandas. Si hay alergia, escríbela con detalle: Room Service la coordinará directamente con cocina.</div>` },
+  { title:"Comunicaciones obligatorias", body:`
+    <div class="phrase"><span class="es">«Las botellas de agua premium tienen un coste de 7 €; si lo prefiere, dispone de agua complementaria de la habitación.»</span>
+    <span class="en">“Premium water bottles are 7 €; alternatively, complimentary water is available in your room.”</span></div>
+    <div class="phrase"><span class="es">«El servicio de hielo y menaje adicional tiene un suplemento de 6 €.»</span>
+    <span class="en">“Ice service and additional tableware carry a 6 € supplement.”</span></div>
+    <div class="phrase"><span class="es">«Su pedido llegará a la habitación en aproximadamente 35-40 minutos.»</span>
+    <span class="en">“Your order will be delivered in approximately 35-40 minutes.”</span></div>
+    <div class="mandatory">En Night Menu el plazo es de 40-45 minutos (cocina reducida). Informa SIEMPRE del plazo real.</div>` },
+  { title:"Pago, confirmación y cierre", body:`
+    <div class="phrase"><span class="es">«¿Cómo le gustaría realizar el pago: con cargo a la habitación, con tarjeta o en efectivo?»</span>
+    <span class="en">“How would you like to pay: charged to your room, by card, or in cash?”</span></div>
+    <div class="phrase"><span class="es">«Le confirmo su pedido: [leer la comanda completa del resumen, con cantidades y variantes]. El total es de [importe].»</span>
+    <span class="en">“Let me confirm your order: [read the full order back]. The total is [amount].”</span></div>
+    <div class="phrase"><span class="es">«¿Desea algo más? … Muchas gracias, que tenga un buen día / que disfrute de su estancia.»</span>
+    <span class="en">“Would you like anything else? … Thank you very much, have a lovely day / enjoy your stay.”</span></div>
+    <div class="tip">Selecciona la forma de pago en el punto 5, lee el resumen tal cual y pulsa <b>Enviar comanda</b>. El equipo la recibe al instante por Telegram.</div>` }
+];
+
+/* ================================================================
+   LÓGICA DE LA APLICACIÓN
+   ================================================================ */
+const cart = {};      // key: "id|v1|v2" -> línea independiente por variante
+const selState = {};  // selección visible en cada tarjeta: id -> {v1, v2}
+let currentTab = null;
+const fmt = n => n.toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2}) + " €";
+
+const ITEM_INDEX = {};
+Object.values(MENU).forEach(cat => cat.sections.forEach(s => s.items.forEach(i => ITEM_INDEX[i.id] = i)));
+
+/* ---- Clock & service ---- */
+function currentService(){
+  const d = new Date();
+  const h = d.getHours() + d.getMinutes()/60;
+  const agosto = document.getElementById("agosto").checked;
+  if (h >= 7 && h < 12) return "breakfast";
+  if (!agosto){
+    if (h >= 12 && h < 23.5) return "allday";
+    return "night";
+  } else {
+    if (h >= 12 || h < 3) return "allday";
+    if (h >= 3 && h < 7) return "night";
+    return "breakfast";
+  }
+}
+function serviceLabel(){
+  const agosto = document.getElementById("agosto").checked;
+  const s = currentService();
+  if (s==="breakfast") return "Desayuno · 07:00–12:00";
+  if (s==="allday") return agosto ? "All Day Dining · 12:00–03:00 (agosto)" : "All Day Dining · 12:00–23:30";
+  return agosto ? "Night Menu · 03:00–07:00 (agosto)" : "Night Menu · 23:30–07:00";
+}
+function tickClock(){
+  const d = new Date();
+  document.getElementById("clock").textContent =
+    String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+  document.getElementById("servicePill").textContent = serviceLabel();
+  document.querySelectorAll(".tab").forEach(t=> t.classList.toggle("now",
+    ["breakfast","allday","night","kids"].includes(t.dataset.key) && tabIsActive(t.dataset.key)));
+}
+setInterval(tickClock, 1000);
+
+/* ---- Tabs ---- */
+const TAB_ORDER = ["breakfast","allday","night","kids","drinks","extras"];
+function tabIsActive(key){
+  if (key === "kids") return currentService() === "allday";
+  return key === currentService();
+}
+function buildTabs(){
+  const bar = document.getElementById("tabs");
+  bar.innerHTML = "";
+  TAB_ORDER.forEach(key=>{
+    const b = document.createElement("button");
+    b.className = "tab" + (key===currentTab ? " active":"") + (tabIsActive(key) && ["breakfast","allday","night","kids"].includes(key) ? " now":"");
+    b.dataset.key = key;
+    b.innerHTML = MENU[key].label + "<small>" + MENU[key].hours + "</small>";
+    b.onclick = ()=>{ currentTab = key; buildTabs(); renderMenu(); };
+    bar.appendChild(b);
+  });
+}
+function renderOffhours(){
+  const box = document.getElementById("offhours");
+  if (["breakfast","allday","night","kids"].includes(currentTab) && !tabIsActive(currentTab)){
+    box.innerHTML = "⚠ <b>Esta carta no está activa ahora mismo</b> (horario: " + MENU[currentTab].hours + "). Si el huésped pide algo de aquí, <b>confirma primero con cocina</b> antes de aceptar la comanda.";
+    box.classList.add("show");
+  } else box.classList.remove("show");
+}
+
+/* ---- Menu render ---- */
+function renderMenu(){
+  renderOffhours();
+  const area = document.getElementById("menuArea");
+  area.innerHTML = "";
+  MENU[currentTab].sections.forEach(sec=>{
+    const h = document.createElement("div");
+    h.className = "subsec"; h.textContent = sec.title;
+    area.appendChild(h);
+    const grid = document.createElement("div");
+    grid.className = "items";
+    sec.items.forEach(item=> grid.appendChild(itemCard(item)));
+    area.appendChild(grid);
+  });
+}
+function algChips(alg){
+  if (!alg || alg==="—") return "";
+  return `<div class="allergens">` + alg.split("·").map(a=>`<span class="alg">${a.trim()}</span>`).join("") + `</div>`;
+}
+function keyFor(item, v1, v2){ return item.id + "|" + (v1||0) + "|" + (v2||0); }
+function getSel(item){
+  if (!selState[item.id]) selState[item.id] = { v1:0, v2:0 };
+  return selState[item.id];
+}
+function itemInCart(id){ return Object.values(cart).some(l=>l.id===id); }
+function variantSelect(item, vKey, idxKey){
+  const v = item[vKey];
+  const sel = document.createElement("select");
+  sel.className = "variant"; sel.dataset.idx = idxKey;
+  v.options.forEach((o,i)=>{
+    const op = document.createElement("option");
+    op.value = i; op.textContent = (v.label ? v.label + ": " : "") + o;
+    sel.appendChild(op);
+  });
+  const cur = getSel(item);
+  sel.value = idxKey === "variantIdx" ? cur.v1 : cur.v2;
+  sel.onchange = ()=>{
+    const s = getSel(item);
+    if (idxKey === "variantIdx") s.v1 = +sel.value; else s.v2 = +sel.value;
+    refresh();
+  };
+  return sel;
+}
+function itemCard(item){
+  const s = getSel(item);
+  const key = keyFor(item, s.v1, s.v2);
+  const card = document.createElement("div");
+  card.className = "item" + (itemInCart(item.id) ? " in-cart":"");
+  card.innerHTML = `
+    <div class="item-top">
+      <div class="item-name">${item.name}</div>
+      <div class="item-price">${item.priceNote || fmt(item.price)}</div>
+    </div>
+    ${item.desc ? `<div class="item-desc">${item.desc}</div>` : ""}
+    ${algChips(item.alg)}
+    ${item.min ? `<div class="min-note">Pedido mínimo: ${item.min} uds</div>` : ""}
+    ${item.note ? `<div class="item-note">⚠ ${item.note}</div>` : ""}
+  `;
+  if (item.variant)  card.appendChild(variantSelect(item, "variant",  "variantIdx"));
+  if (item.variant2) card.appendChild(variantSelect(item, "variant2", "variant2Idx"));
+  const row = document.createElement("div");
+  row.className = "stepper";
+  const minus = document.createElement("button"); minus.textContent="−";
+  const val = document.createElement("span"); val.className="qty"; val.textContent = cart[key] ? cart[key].qty : "0";
+  const plus = document.createElement("button"); plus.className="plus"; plus.textContent="+";
+  minus.onclick = ()=>{
+    const s = getSel(item);
+    changeQty(item, keyFor(item, s.v1, s.v2), -1);
+  };
+  plus.onclick = ()=>{
+    const s = getSel(item);
+    changeQty(item, keyFor(item, s.v1, s.v2), 1, s.v1, s.v2);
+  };
+  row.append(minus, val, plus);
+  card.appendChild(row);
+  return card;
+}
+function unitPrice(item, v1, v2){
+  let p = item.price;
+  if (item.variant  && item.variant.deltas  && v1!=null) p += item.variant.deltas[v1];
+  if (item.variant2 && item.variant2.deltas && v2!=null) p += item.variant2.deltas[v2];
+  return p;
+}
+function changeQty(item, key, delta, v1, v2){
+  const cur = cart[key];
+  const min = item.min || 1;
+  if (delta > 0){
+    if (cur){ cur.qty++; }
+    else cart[key] = { id:item.id, variantIdx:v1||0, variant2Idx:v2||0, qty:min };
+  } else if (cur){
+    cur.qty--;
+    if (cur.qty < 1) delete cart[key];
+    else if (cur.qty < min) cur.qty = min;
+  }
+  refresh();
+}
+function refresh(){ renderMenu(); renderSummary(); renderComms(); }
+
+/* ---- Order ID ---- */
+function genOrderId(){
+  const d = new Date();
+  return "RS-" + d.getFullYear() + String(d.getMonth()+1).padStart(2,"0") + String(d.getDate()).padStart(2,"0")
+       + "-" + Math.floor(1000 + Math.random()*9000);
+}
+let orderId = genOrderId();
+document.getElementById("orderId").textContent = "Comanda " + orderId;
+
+/* ---- Summary ---- */
+function variantText(item, l){
+  const parts = [];
+  if (item.variant)  parts.push(item.variant.options[l.variantIdx||0]);
+  if (item.variant2) parts.push(item.variant2.options[l.variant2Idx||0]);
+  return parts.length ? parts.join(" · ") : null;
+}
+function cartLines(){
+  return Object.values(cart).map(l=>{
+    const item = ITEM_INDEX[l.id];
+    const up = unitPrice(item, l.variantIdx, l.variant2Idx);
+    return { name:item.name, variant:variantText(item,l), qty:l.qty, unit:up, total:up*l.qty };
+  });
+}
+function cartTotal(){ return cartLines().reduce((a,l)=>a+l.total,0); }
+function renderSummary(){
+  const body = document.getElementById("sumBody");
+  const lines = cartLines();
+  if (!lines.length){
+    body.innerHTML = `<div class="sum-empty">Todavía no hay productos seleccionados.</div>`;
+  } else {
+    body.innerHTML = "";
+    lines.forEach(l=>{
+      const div = document.createElement("div");
+      div.className = "sum-line";
+      div.innerHTML = `<div class="sl-name">${l.qty} × ${l.name}${l.variant?`<span class="sl-var">${l.variant}</span>`:""}</div>
+                       <div class="sl-price">${fmt(l.total)}</div>`;
+      body.appendChild(div);
+    });
+  }
+  document.getElementById("sumTotal").textContent = fmt(cartTotal());
+}
+
+/* ---- Comunicaciones obligatorias ---- */
+const COMMS_BASE = [
+  { id:"c-time", text:"He informado del tiempo estimado de entrega (35–40 min · 40–45 min en Night Menu)" },
+  { id:"c-read", text:"He leído la comanda completa al huésped y he confirmado el total" },
+];
+const COMMS_COND = [
+  { id:"c-water", text:"He informado del coste de 7 € de las botellas de agua premium", ids:["x-panna","x-pellegrino"] },
+  { id:"c-ice", text:"He informado del suplemento de 6 € de hielo y menaje adicional", ids:["x-hielo"] },
+];
+function activeComms(){
+  const inCart = new Set(Object.values(cart).map(l=>l.id));
+  const list = [...COMMS_BASE];
+  COMMS_COND.forEach(c=>{ if (c.ids.some(id=>inCart.has(id))) list.push(c); });
+  return list;
+}
+function renderComms(){
+  const box = document.getElementById("commBox");
+  const prev = {};
+  box.querySelectorAll("input").forEach(i=> prev[i.dataset.id] = i.checked);
+  box.innerHTML = "";
+  activeComms().forEach(c=>{
+    const lab = document.createElement("label");
+    lab.className = prev[c.id] ? "done":"";
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.dataset.id = c.id; cb.checked = !!prev[c.id];
+    cb.onchange = ()=> lab.classList.toggle("done", cb.checked);
+    lab.append(cb, document.createTextNode(c.text));
+    box.appendChild(lab);
+  });
+}
+
+/* ---- Guía de llamada (drawer) ---- */
+function renderSpeech(){
+  const box = document.getElementById("speech");
+  box.innerHTML = "";
+  SPEECH.forEach((s,i)=>{
+    const div = document.createElement("div");
+    div.className = "step" + (i===0 ? " open":"");
+    div.innerHTML = `
+      <button class="step-btn"><span class="step-num">${i+1}</span><span class="step-title">${s.title}</span></button>
+      <div class="step-body">${s.body}
+        <label class="step-check"><input type="checkbox"> Paso completado</label>
+      </div>`;
+    div.querySelector(".step-btn").onclick = ()=> div.classList.toggle("open");
+    div.querySelector(".step-check input").onchange = (e)=>{
+      div.classList.toggle("done", e.target.checked);
+      if (e.target.checked){
+        const next = box.querySelectorAll(".step")[i+1];
+        if (next) next.classList.add("open");
+      }
+    };
+    box.appendChild(div);
+  });
+}
+function openDrawer(o){
+  document.getElementById("drawer").classList.toggle("show", o);
+  document.getElementById("drawerOverlay").classList.toggle("show", o);
+}
+document.getElementById("guideBtn").onclick = ()=>openDrawer(true);
+document.getElementById("drawerClose").onclick = ()=>openDrawer(false);
+document.getElementById("drawerOverlay").onclick = ()=>openDrawer(false);
+
+/* ---- Validación y envío ---- */
+function getPayment(){
+  const r = document.querySelector('input[name="payment"]:checked');
+  return r ? r.value : "";
+}
+function validate(){
+  const errs = [];
+  if (!document.getElementById("fRoom").value.trim()) errs.push("· Falta el número de habitación.");
+  if (!Object.keys(cart).length) errs.push("· No hay productos seleccionados.");
+  const al = document.getElementById("fAllergy").value;
+  if (!al) errs.push("· Falta responder la pregunta de alergias (obligatoria).");
+  if (al==="Sí" && !document.getElementById("fAllergyDetail").value.trim())
+    errs.push("· El huésped tiene alergias: especifica cuál.");
+  if (!getPayment()) errs.push("· Falta preguntar la forma de pago (punto 5).");
+  if ([...document.querySelectorAll("#commBox input")].some(b=>!b.checked))
+    errs.push("· Faltan confirmaciones del punto 5 por marcar.");
+  return errs;
+}
+
+document.getElementById("sendBtn").onclick = async ()=>{
+  const errs = validate();
+  const errBox = document.getElementById("valErrors");
+  if (errs.length){
+    errBox.innerHTML = "<b>Antes de enviar:</b><br>" + errs.join("<br>");
+    errBox.classList.add("show");
+    return;
+  }
+  errBox.classList.remove("show");
+
+  const payload = {
+    orderId,
+    timestamp: new Date().toISOString(),
+    service: serviceLabel(),
+    room: document.getElementById("fRoom").value.trim(),
+    guest: document.getElementById("fGuest").value.trim(),
+    pax: document.getElementById("fPax").value,
+    payment: getPayment(),
+    allergy: document.getElementById("fAllergy").value,
+    allergyDetail: document.getElementById("fAllergyDetail").value.trim(),
+    notes: document.getElementById("fNotes").value.trim(),
+    receptionNote: document.getElementById("fReceptionNote").value.trim(),
+    items: cartLines(),
+    total: cartTotal()
+  };
+
+  const btn = document.getElementById("sendBtn");
+  const status = document.getElementById("statusMsg");
+  btn.disabled = true; btn.textContent = "Enviando…";
+  status.className = "status";
+
+  if (!WEBAPP_URL || WEBAPP_URL.startsWith("PEGA_AQUI")){
+    status.className = "status err";
+    status.innerHTML = "⚠ <b>Configuración pendiente:</b> falta enlazar el Google Apps Script (ver guía de configuración). La comanda es válida pero aún no se puede enviar.";
+    btn.disabled = false; btn.textContent = "Enviar comanda";
+    return;
+  }
+
+  try {
+    await fetch(WEBAPP_URL, {
+      method:"POST", mode:"no-cors",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify(payload)
+    });
+    document.getElementById("modalOid").textContent = orderId;
+    document.getElementById("overlay").classList.add("show");
+  } catch(e){
+    status.className = "status err";
+    status.innerHTML = "Error de conexión al enviar. Revisa la URL del Apps Script y la conexión.";
+  }
+  btn.disabled = false; btn.textContent = "Enviar comanda";
+};
+
+function closeModal(){
+  document.getElementById("overlay").classList.remove("show");
+  Object.keys(cart).forEach(k=>delete cart[k]);
+  Object.keys(selState).forEach(k=>delete selState[k]);
+  ["fRoom","fGuest","fAllergyDetail","fNotes","fReceptionNote"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("fAllergy").value = "";
+  document.querySelectorAll('input[name="payment"]').forEach(r=> r.checked=false);
+  document.getElementById("statusMsg").className = "status";
+  document.querySelectorAll(".step-check input").forEach(c=>{ if(c.checked){ c.checked=false; c.dispatchEvent(new Event("change")); } });
+  orderId = genOrderId();
+  document.getElementById("orderId").textContent = "Comanda " + orderId;
+  refresh();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ---- Init ---- */
+document.getElementById("agosto").onchange = ()=>{ tickClock(); buildTabs(); renderMenu(); };
+renderSpeech();
+tickClock();
+currentTab = currentService();
+buildTabs();
+renderMenu();
+renderSummary();
+renderComms();
+</script>
+</body>
+</html>
