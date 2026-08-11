@@ -172,7 +172,7 @@
   <div class="layout">
     <main class="flow">
       <section class="panel" id="guestPanel">
-        <div class="panel__head"><h2><span class="step-no">1</span>Huésped</h2><small>Habitación validada contra Opera</small></div>
+        <div class="panel__head"><h2><span class="step-no">1</span>Huésped</h2></div>
         <div class="panel__body guest-grid">
           <label class="field"><span>Nº habitación *</span><input id="roomInput" inputmode="numeric" autocomplete="off" placeholder="Ej. 214"><span class="room-state" id="roomState"></span></label>
           <label class="field"><span>Nombre del huésped</span><input id="guestInput" autocomplete="off" placeholder="Opcional"><span class="hint">Si no lo indica, basta con la habitación.</span></label>
@@ -474,8 +474,8 @@
     function activeChecks(){
       const ids = new Set(cartLines().map(x => x.id));
       const list = [
-        { id:'time', text:'He informado del cargo de entrega de 6 € y del tiempo estimado de entrega.' },
         { id:'read', text:'He repetido la comanda completa al huésped y la ha confirmado.' },
+        { id:'time', text:'He informado al cliente del tiempo estimado de entrega de 35–45 minutos.' },
       ];
       if (['x-voss-still','x-voss-sparkling','x-panna','x-pellegrino'].some(id => ids.has(id))) list.push({ id:'water', text:'He informado del coste de 7 € del agua premium.' });
       if (['x-hielo','x-menaje'].some(id => ids.has(id))) list.push({ id:'ice', text:'He informado del suplemento de 6 € de hielo o menaje adicional.' });
